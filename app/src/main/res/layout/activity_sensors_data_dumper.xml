@@ -1,0 +1,177 @@
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:focusableInTouchMode="true">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/name_text_field"
+            android:hint="@string/enter_name"/>
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="@string/stop_everything"
+            android:textOff="@string/start_everything"
+            android:id="@+id/toggle_services"
+            android:layout_gravity="center_horizontal"
+            android:showText="true"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/accel_fragment"
+            android:name="com.example.hooligan.accelerometerdatadumper.AccelerometerDataDumperFragment"
+            tools:layout="@layout/fragment_accelerometer_data_dumper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center"/>
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cam_fragment"
+            android:name="com.example.hooligan.cameradatadumper.StartCameraFragment"
+            tools:layout="@layout/fragment_start_camera"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/conn_fragment"
+            android:name="com.example.hooligan.connectivitydatadumper.ConnectivityDumperFragment"
+            tools:layout="@layout/fragment_connectivity_dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/loc_fragment"
+            android:name="com.example.hooligan.locationdumper.LocationDumperFragment"
+            tools:layout="@layout/fragment_location_dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rotation_fragment"
+            android:name="com.example.hooligan.rotationdatadumper.RotationDataDumperFragment"
+            tools:layout="@layout/fragment_rotation_data_dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ambient_light_fragment"
+            android:name="com.example.hooligan.ambientlightdatadumper.AmbientDataDumperFragment"
+            tools:layout="@layout/fragment_ambient_data_dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/microphone_fragment"
+            android:name="com.example.hooligan.microphonedumper.MicrophoneDumperFragment"
+            tools:layout="@layout/fragment_microphone_dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/foreground_fragment"
+            android:name="com.example.hooligan.foregroundactivitydumper.ForegroundDumperFragment"
+            tools:layout="@layout/fragment_foreground_dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/battery_fragment"
+            android:name="com.example.hooligan.batterydatadumper.BatteryDumperFragment"
+            tools:layout="@layout/fragment_battery__dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/magnetic_fragment"
+            android:name="com.example.hooligan.magneticdatadumper.MagneticDataFragment"
+            tools:layout="@layout/fragment_magnetic_data"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/temperature_fragment"
+            android:name="com.example.hooligan.temperaturedatadumper.TemperatureDataFragment"
+            tools:layout="@layout/fragment_temperature_data"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/air_fragment"
+            android:name="com.example.hooligan.airpressuredatadumper.AirPressureDataDumperFragment"
+            tools:layout="@layout/fragment_air_pressure_data_dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/proximity_fragment"
+            android:name="com.example.hooligan.proximitydatadumper.ProximityDataDumperFragment"
+            tools:layout="@layout/fragment_proximity_data_dumper"
+            android:layout_gravity="center"
+            />
+
+    </LinearLayout>
+
+</ScrollView>

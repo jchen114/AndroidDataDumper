@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.hooligan" >
+
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        android:required="true" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".SensorDataDumperActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name=".callstatedumper.PhoneStateBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE"/>
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".accelerometerdatadumper.DumpAccelerometerRunnableService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".rotationdatadumper.DumpRotationRunnableService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".cameradatadumper.CameraService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".connectivitydatadumper.ConnectivityDumperService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".locationdumper.DumpLocationRunnableService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".touchdatadumper.DumpTouchRunnableService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".touchdatadumper.TouchDataDumperService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".touchdatadumper.TouchService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".camerabackdatadumper.BackCameraDumperService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".ambientlightdatadumper.DumpAmbientLightService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".microphonedumper.MicrophoneDumperService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".foregroundactivitydumper.ForegroundDumperService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".batterydatadumper.BatteryDumperService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".cameradatadumper.FrontBackCameraService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".magneticdatadumper.MagneticDumperService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".temperaturedatadumper.TemperatureDataRunnableService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".airpressuredatadumper.AirPressureDataService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".proximitydatadumper.ProximityDataService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+    </application>
+
+</manifest>

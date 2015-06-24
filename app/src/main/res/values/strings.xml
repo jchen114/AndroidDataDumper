@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">SensorDataDumper</string>
+    <string name="action_settings">Settings</string>
+    <string name="accelerometer_start">Start Dumping Accelerometer</string>
+    <string name="gyroscope_start">Start Dumping Gyroscope</string>
+    <string name="rotation_start">Start Dumping Rotation</string>
+    <string name="front_camera_start">Start Dumping Front Camera</string>
+    <string name="camera_start">Start Dumping Camera</string>
+    <string name="back_camera_start">Start Dumping Back Camera</string>
+    <string name="description_info">Info</string>
+    <string name="connectivity_start">Start Dumping Connectevity</string>
+    <string name="location_start">Start Dumping Location</string>
+    <string name="touch_start">Start Dumping Touch</string>
+    <string name="ambient_light_start">Start Dumping Ambient Light</string>
+    <string name="microphone_start">Start Dumping Microphone</string>
+    <string name="enter_name">Enter Name</string>
+    <string name="foreground_start">Start Dumping Foreground</string>
+    <string name="battery_start">Start Dumping Battery</string>
+    <string name="magnetic_start">Start Dumping Magnetic</string>
+    <string name="temperature_start">Start Dumping Temperatuer</string>
+    <string name="air_pressure_start">Start Dumping Air Pressure</string>
+    <string name="proximity_start">Start Dumping Air Pressure</string>
+
+    <string name="start_everything">Start all services</string>
+    <string name="stop_everything">Stop all services</string>
+
+</resources>
