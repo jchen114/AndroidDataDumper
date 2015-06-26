@@ -35,7 +35,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".SensorDataDumperActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -119,6 +120,11 @@
             android:exported="true" >
         </service>
         <service
+            android:name=".cameradatadumper.FrontBackCameraService_2"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
             android:name=".magneticdatadumper.MagneticDumperService"
             android:enabled="true"
             android:exported="true" >
@@ -138,6 +144,9 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+        <service
+            android:name=".cameradatadumper.CameraMetaSaver"
+            android:exported="false"/>
 
     </application>
 

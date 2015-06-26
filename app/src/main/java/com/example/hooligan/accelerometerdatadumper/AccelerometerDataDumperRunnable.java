@@ -40,7 +40,8 @@ public class AccelerometerDataDumperRunnable extends Thread implements SensorEve
         mSensorManager = sensorManager;
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         try {
-            mDataWriter = new DataToFileWriter("accelerometer.txt");
+            mDataWriter = new DataToFileWriter("Accelerometer.txt");
+            mDataWriter.writeToFile("Time\tX\tY\tZ", false);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -84,7 +85,7 @@ public class AccelerometerDataDumperRunnable extends Thread implements SensorEve
         linear_acceleration[0] = event.values[0] - gravity[0];
         linear_acceleration[1] = event.values[1] - gravity[1];
         linear_acceleration[2] = event.values[2] - gravity[2];
-        String toDump = String.format("x:%f, y:%f, z:%f", linear_acceleration[0], linear_acceleration[1], linear_acceleration[2]);
+        String toDump = String.format("%f\t%f\t%f", linear_acceleration[0], linear_acceleration[1], linear_acceleration[2]);
         Log.i(mLogTag, toDump);
         mDataWriter.writeToFile(toDump);
     }

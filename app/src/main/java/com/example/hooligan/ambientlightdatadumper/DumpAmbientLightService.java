@@ -7,14 +7,19 @@ import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.hooligan.SensorDataDumperActivity;
+
 public class DumpAmbientLightService extends Service {
 
     private DumpAmbientLightRunnable mAmbientLightDumperRunnable;
+    private static final String mLogTag = "AmbientLightService";
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("AmbientLightService", "Start Dumping Ambient data");
+        Log.i(mLogTag, "Start Dumping Ambient data");
         Toast.makeText(this, "Ambient Light Dumper Service Starting", Toast.LENGTH_SHORT).show();
+        SensorDataDumperActivity.writeLogs(mLogTag + " Starting");
         mAmbientLightDumperRunnable = new DumpAmbientLightRunnable((SensorManager) getSystemService(SENSOR_SERVICE));
         mAmbientLightDumperRunnable.startDumping();
         return START_STICKY;
@@ -28,6 +33,7 @@ public class DumpAmbientLightService extends Service {
     @Override
     public void onDestroy() {
         mAmbientLightDumperRunnable.stopDumping();
+        SensorDataDumperActivity.writeLogs(mLogTag + " Stopping");
         super.onDestroy();
     }
 

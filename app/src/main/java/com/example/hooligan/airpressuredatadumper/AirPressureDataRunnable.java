@@ -29,6 +29,7 @@ public class AirPressureDataRunnable extends Thread implements SensorEventListen
         Looper.prepare();
         mSensorManager.registerListener(this, mSensor, 2000000);
         mDataToFileWriter = new DataToFileWriter("Pressure.txt");
+        mDataToFileWriter.writeToFile("Time\tPressure", false);
         Looper.loop();
     }
 
@@ -49,7 +50,7 @@ public class AirPressureDataRunnable extends Thread implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         float pressure = event.values[0];
-        String toDump = "pressure: " + Float.toString(pressure);
+        String toDump = Float.toString(pressure);
         Log.i(mLogTag, toDump);
         mDataToFileWriter.writeToFile(toDump);
     }

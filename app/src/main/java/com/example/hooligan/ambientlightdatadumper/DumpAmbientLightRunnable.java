@@ -25,7 +25,8 @@ public class DumpAmbientLightRunnable extends Thread implements SensorEventListe
         mSensorManager = sensorManager;
         mLightSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         try {
-            mDataToFileWriter = new DataToFileWriter("ambient-light.txt");
+            mDataToFileWriter = new DataToFileWriter("Ambient-light.txt");
+            mDataToFileWriter.writeToFile("Time\tLuminance", false);
         }
         catch (NullPointerException e) {
             e.printStackTrace();
@@ -58,7 +59,7 @@ public class DumpAmbientLightRunnable extends Thread implements SensorEventListe
     @Override
     public void onSensorChanged(SensorEvent event) {
         float luminance = event.values[0];
-        String toDump = "Luminance: " + Float.toString(luminance);
+        String toDump = Float.toString(luminance);
         Log.i(mLogTag, toDump);
         mDataToFileWriter.writeToFile(toDump);
     }

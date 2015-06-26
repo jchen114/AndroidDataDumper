@@ -3,10 +3,7 @@ package com.example.hooligan.cameradatadumper;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -15,32 +12,33 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.WindowManager;
 
-import com.example.hooligan.Devices;
+import com.example.hooligan.DataToFileWriter;
 import com.example.hooligan.SensorDataDumperActivity;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 
-public class FrontBackCameraService extends Service {
+public class FrontBackCameraService_2 extends Service {
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
@@ -72,10 +70,12 @@ public class FrontBackCameraService extends Service {
     private CameraCaptureSession mCameraCaptureSession;
     private TimerTask mTimerTask;
     private Timer mTimer;
-    private static final String mLogTag = "FrontBackCameraService";
+    private static final String mLogTag = "FBCameraService_2";
     private File mDir;
     private Boolean mCameraDeviceOpened = false;
     private StreamConfigurationMap map;
+    private Timestamp mTimeStamp;
+
 
     private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
 
@@ -86,8 +86,8 @@ public class FrontBackCameraService extends Service {
             mCameraOpenCloseLock.release();
             mCameraDevice = cameraDevice;
             // Capture the image
-            beginCapture();
             mCameraDeviceOpened = true;
+            beginCapture();
         }
 
         @Override
@@ -102,6 +102,16 @@ public class FrontBackCameraService extends Service {
             Log.i(mLogTag, "onClosed");
             mCameraDeviceOpened = false;
             super.onClosed(camera);
+            try {
+                // switch to the Front camera now
+                if (mUsingFrontCamera) {
+                    mCameraManager.openCamera(mFrontCameraId, mStateCallback, mBackgroundHandler);
+                }
+            } catch (CameraAccessException e) {
+                Log.e(mLogTag, "Error accessing front camera");
+                e.printStackTrace();
+            }
+
         }
 
         @Override
@@ -127,7 +137,7 @@ public class FrontBackCameraService extends Service {
         }
     };
 
-    public FrontBackCameraService() {
+    public FrontBackCameraService_2() {
     }
 
     @Override
@@ -137,8 +147,7 @@ public class FrontBackCameraService extends Service {
             startBackgroundThread();
             mWindowManager = SensorDataDumperActivity.mSensorDataDumperActivity.getWindowManager();
             mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-            String dirPath = SensorDataDumperActivity.mSensorDataDumperActivity.getExternalFilesDir(null).getPath()
-                    + "/" + SensorDataDumperActivity.mUserName
+            String dirPath = SensorDataDumperActivity.mParentDir.getPath()
                     + "/camera";
             mDir = new File(dirPath);
             if (!mDir.exists()) {
@@ -171,12 +180,10 @@ public class FrontBackCameraService extends Service {
                         if (!mCameraDeviceOpened) {
                             // Open it
                             try {
-                                if (mUsingFrontCamera) {
-                                    mCameraManager.openCamera(mFrontCameraId, mStateCallback, mBackgroundHandler);
-                                } else {
+                                if (!mUsingFrontCamera) {
+                                    // Begin with the back camera
                                     mCameraManager.openCamera(mBackCameraId, mStateCallback, mBackgroundHandler);
                                 }
-
                             } catch (CameraAccessException e) {
                                 Log.e(mLogTag, "Timer Task Camera Access Exception");
                                 mCameraDeviceOpened = false;
@@ -187,7 +194,7 @@ public class FrontBackCameraService extends Service {
                 };
 
                 mTimer = new Timer(mLogTag);
-                mTimer.schedule(mTimerTask, 0, 4000);
+                mTimer.schedule(mTimerTask, 0, 6000);
 
                 return START_STICKY;
             }
@@ -204,20 +211,23 @@ public class FrontBackCameraService extends Service {
 
     private void beginCapture() {
 
-        String deviceName = Devices.getDeviceName();
-        String fileName;
-        fileName = mUsingFrontCamera ? "front" + Integer.toString(mDir.listFiles().length) + ".jpg"
-                : "back" + Integer.toString(mDir.listFiles().length) + ".jpg";
+        StringBuilder fileName;
+        fileName = mUsingFrontCamera ?
+                new StringBuilder("front")
+                : new StringBuilder("back");
+
         /*
-        if (deviceName.toLowerCase().contains("nexus 5")) {
-            fileName = mUsingFrontCamera ? "front-flip" + Integer.toString(mDir.listFiles().length) + ".jpg"
-                    : "back" + Integer.toString(mDir.listFiles().length) + ".jpg";
-        } else {
-            fileName = mUsingFrontCamera ? "front" + Integer.toString(mDir.listFiles().length) + ".jpg"
-                    : "back" + Integer.toString(mDir.listFiles().length) + ".jpg";
-        }
+        fileName.append(Integer.toString(mDir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isFile();
+            }
+        }).length));
         */
-        mFile = new File(mDir, fileName);
+        Date date = new Date();
+        mTimeStamp = new Timestamp(date.getTime());
+        fileName.append("_" + Long.toString(mTimeStamp.getTime()));
+        mFile = new File(mDir, fileName.toString());
         try {
 
             mCameraDevice.createCaptureSession(
@@ -272,8 +282,10 @@ public class FrontBackCameraService extends Service {
                 public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request,
                                                TotalCaptureResult result) {
                     Log.i(mLogTag, "File written to: " + mFile.getPath());
-                    mUsingFrontCamera = !mUsingFrontCamera;
                     closeCamera();
+                    Thread cameraMetaSaver = new Thread(new CameraMetaSaver(result, mUsingFrontCamera, mTimeStamp));
+                    cameraMetaSaver.start();
+                    mUsingFrontCamera = !mUsingFrontCamera;
                 }
             };
             Log.i(mLogTag, "Camera Capture Session");
@@ -348,5 +360,4 @@ public class FrontBackCameraService extends Service {
                     (long) rhs.getWidth() * rhs.getHeight());
         }
     }
-
 }

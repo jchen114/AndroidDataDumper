@@ -23,6 +23,7 @@ public class ProximityDataRunnable extends Thread implements SensorEventListener
         mSensorManager = sensorManager;
         mDataToFileWriter = new DataToFileWriter("Proximity.txt");
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        mDataToFileWriter.writeToFile("Time\tDistance",false);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ProximityDataRunnable extends Thread implements SensorEventListener
     @Override
     public void onSensorChanged(SensorEvent event) {
         float distance = event.values[0];
-        String toDump = distance > 0 ? "far" : "near";
+        String toDump = distance > 0 ? "F" : "N";
         Log.i(mLogTag, toDump);
         mDataToFileWriter.writeToFile(toDump);
     }

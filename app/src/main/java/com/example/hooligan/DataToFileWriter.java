@@ -20,13 +20,8 @@ public class DataToFileWriter {
 
     public DataToFileWriter(String fileName) {
         try {
-            String dirPath = SensorDataDumperActivity.mSensorDataDumperActivity.getExternalFilesDir(null).getPath();
-            File mDir = new File(dirPath + "/" + SensorDataDumperActivity.mUserName);
-            if (!mDir.exists()) {
-                mDir.mkdir();
-            }
 
-            mFile = new File(mDir, fileName);
+            mFile = new File(SensorDataDumperActivity.mParentDir, fileName);
             mFile.createNewFile();
 
             if (!mFile.canWrite()) {
@@ -39,15 +34,36 @@ public class DataToFileWriter {
         }
     }
 
+    public boolean writeToFile(String toWrite, Boolean timestamp) {
+        try {
+            Date date = new Date();
+            if (mFileWriter == null) {
+                mFileWriter = new FileWriter(mFile, true);
+            }
+            if (timestamp) {
+                mFileWriter.append(new Timestamp(date.getTime()).getTime() + "\t" + toWrite + "\r\n");
+            } else {
+                mFileWriter.append(toWrite + "\r\n");
+            }
+            mFileWriter.flush();
+        } catch (IOException | NullPointerException e) {
+            Log.i(mLogTag, "Error writing to file");
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
     public boolean writeToFile(String toWrite) {
         try {
             Date date = new Date();
             if (mFileWriter == null) {
                 mFileWriter = new FileWriter(mFile, true);
             }
-            mFileWriter.append(new Timestamp(date.getTime()).getTime() + " " + toWrite + "\r\n");
+            mFileWriter.append(new Timestamp(date.getTime()).getTime() + "\t" + toWrite + "\r\n");
             mFileWriter.flush();
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
+            Log.i(mLogTag, "Error writing to file");
             e.printStackTrace();
             return false;
         }

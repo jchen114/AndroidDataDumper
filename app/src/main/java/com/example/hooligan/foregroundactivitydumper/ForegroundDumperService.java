@@ -38,38 +38,40 @@ public class ForegroundDumperService extends Service {
         Toast.makeText(this, "Foreground Dumper Service Starting", Toast.LENGTH_SHORT).show();
         mActivityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         mPackageManager = this.getPackageManager();
-        mDataToFileWriter = new DataToFileWriter("foreground.txt");
+        Log.i(mLogTag, "Service is starting");
+        mDataToFileWriter = new DataToFileWriter("Foreground.txt");
+        mDataToFileWriter.writeToFile("Time\tForeground App\tBackground Apps", false);
         mTimerTask = new TimerTask() {
             @Override
             public void run() {
+                StringBuilder toDump = new StringBuilder();
                 List<ActivityManager.RunningAppProcessInfo> processes = mActivityManager.getRunningAppProcesses();
                 if (processes.size() > 0) {
-                    mDataToFileWriter.writeToFile(">>>>>>>>>>>>>>>Running processes: ");
-                    Log.i(mLogTag, "Running Processes:");
                     for (int i = 0; i < processes.size(); i ++) {
                         ActivityManager.RunningAppProcessInfo process = processes.get(i);
                         try {
                             CharSequence appName = mPackageManager.getApplicationLabel(mPackageManager.getApplicationInfo(process.processName, PackageManager.GET_META_DATA));
-                            String toDump = Integer.toString(i) + ": " + (String) appName;
-                            Log.i(mLogTag, toDump);
-                            mDataToFileWriter.writeToFile(toDump);
+                            toDump.append(Integer.toString(i) + ": " + (String) appName + "\t");
                         } catch (PackageManager.NameNotFoundException e) {
                             e.printStackTrace();
                         }
                     }
+                    Log.i(mLogTag, toDump.toString());
+                    mDataToFileWriter.writeToFile(toDump.toString());
                 }
             }
         };
         mTimer = new Timer(mLogTag);
         mTimer.schedule(mTimerTask, 0, 3000);
-
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(mLogTag, "Stopping");
         mTimer.cancel();
+        mTimer.purge();
         mDataToFileWriter.closeFile();
     }
 }

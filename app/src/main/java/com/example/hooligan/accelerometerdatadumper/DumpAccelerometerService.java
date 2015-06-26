@@ -11,12 +11,15 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.hooligan.SensorDataDumperActivity;
+
 public class DumpAccelerometerService extends Service implements SensorEventListener{
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private double[] gravity = new double[3];
     private double[] linear_acceleration = new double[3];
+    private static final String mLogTag = "DumpAccelService";
 
     public DumpAccelerometerService() {
     }
@@ -24,7 +27,8 @@ public class DumpAccelerometerService extends Service implements SensorEventList
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Accelerometer Dumper Service Starting", Toast.LENGTH_SHORT).show();
-        Log.i("DumpAccelService", "Dump Accelerometer Service starting");
+        Log.i(mLogTag, "Dump Accelerometer Service starting");
+        SensorDataDumperActivity.writeLogs(mLogTag + " Accelerometer starting");
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer, 100);
@@ -62,6 +66,7 @@ public class DumpAccelerometerService extends Service implements SensorEventList
     @Override
     public void onDestroy() {
         Log.i("AccelerometerService", "On Destroy");
+        SensorDataDumperActivity.writeLogs(mLogTag + " Accelerometer stopping");
         mSensorManager.unregisterListener(this);
         super.onDestroy();
     }

@@ -175,9 +175,12 @@ public class CameraService extends Service {
                                 mCameraManager.openCamera(mCameraId, mStateCallback, mBackgroundHandler);
                             } catch (CameraAccessException e) {
                                 Log.e(mLogTag, "Timer Task Camera Access Exception");
+                                Toast.makeText(getApplicationContext(), "Camera Error", Toast.LENGTH_SHORT).show();
                                 mCameraDeviceOpened = false;
                                 e.printStackTrace();
                             }
+                        } else {
+                            Log.i(mLogTag, "Camera Device is opened");
                         }
                     }
                 };
@@ -192,8 +195,10 @@ public class CameraService extends Service {
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             Log.e(mLogTag, sw.toString());
+            Toast.makeText(getApplicationContext(), "Camera Error", Toast.LENGTH_SHORT).show();
         } catch (NullPointerException e) {
             e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Camera Error", Toast.LENGTH_SHORT).show();
         }
         return START_FLAG_RETRY;
     }
@@ -221,6 +226,7 @@ public class CameraService extends Service {
                         @Override
                         public void onConfigureFailed(CameraCaptureSession cameraCaptureSession) {
                             Log.i(mLogTag, "Failed Camera Capture Session");
+                            Toast.makeText(getApplicationContext(), "Camera Error", Toast.LENGTH_SHORT).show();
                             closeCamera();
                         }
                     },

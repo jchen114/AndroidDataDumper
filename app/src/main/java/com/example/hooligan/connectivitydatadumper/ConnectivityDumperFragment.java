@@ -1,6 +1,8 @@
 package com.example.hooligan.connectivitydatadumper;
 
 
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -71,6 +73,7 @@ public class ConnectivityDumperFragment extends Fragment implements Connectivity
 
     @Override
     public void turnOnService() {
+
         if (!isDumping) {
             mIntent = new Intent(getActivity().getApplicationContext(), ConnectivityDumperService.class);
             getActivity().startService(mIntent);
@@ -88,4 +91,19 @@ public class ConnectivityDumperFragment extends Fragment implements Connectivity
             setButtonText();
         }
     }
+
+    public void displayEnableDialog() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Must Enable Bluetooth")
+                .setMessage("Please enable bluetooth in settings")
+                .setCancelable(true).show();
+    }
+
+    public void displayAngryDialog() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle("No Bluetooth device")
+                .setMessage("Cannot start service")
+                .setCancelable(true).show();
+    }
+
 }

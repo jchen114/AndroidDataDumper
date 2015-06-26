@@ -1,17 +1,22 @@
 package com.example.hooligan;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hooligan.accelerometerdatadumper.AccelerometerFragmentInterface;
@@ -29,10 +34,14 @@ import com.example.hooligan.rotationdatadumper.RotationFragmentInterface;
 import com.example.hooligan.temperaturedatadumper.TemperatureFragmentInterface;
 
 import java.io.File;
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class SensorDataDumperActivity
         extends FragmentActivity
         implements View.OnClickListener{
+
+    public static DataToFileWriter mDataToFileWriter;
 
     private AccelerometerFragmentInterface acc_fragment;
     private RotationFragmentInterface rot_fragment;
@@ -53,14 +62,14 @@ public class SensorDataDumperActivity
 
     public static SensorDataDumperActivity mSensorDataDumperActivity;
     public static String mUserName = "";
-
+    public static File mParentDir;
+    private Boolean textChanged = false;
     private static String mLogTag = "SensorActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sensors_data_dumper);
-
         acc_fragment = (AccelerometerFragmentInterface) getFragmentManager().findFragmentById(R.id.accel_fragment);
         rot_fragment = (RotationFragmentInterface) getFragmentManager().findFragmentById(R.id.rotation_fragment);
         cam_fragment = (CameraFragmentInterface) getFragmentManager().findFragmentById(R.id.cam_fragment);
@@ -90,20 +99,36 @@ public class SensorDataDumperActivity
             @Override
             public void afterTextChanged(Editable s) {
                 if (s.length() > 0) {
-                    didEnterName = true;
                     mUserName = s.toString();
-                } else {
-                    didEnterName = false;
+
                 }
+                didEnterName = false;
+            }
+        });
+
+        mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_DONE ) {
+                    Log.i(mLogTag, "Done");
+                    // the user is done typing.
+                    didEnterName = true;
+                    //InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    //imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+                }
+                return false; // pass on to other listeners.
             }
         });
 
         Switch toggleServices = (Switch) findViewById(R.id.toggle_services);
 
+        mSensorDataDumperActivity = this;
+
         toggleServices.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mUserName.length() > 0) {
+                if (didEnterName) {
                     if (isChecked) {
                         makeDir();
                         // Start All services
@@ -157,7 +182,13 @@ public class SensorDataDumperActivity
     @Override
     protected void onStart() {
         super.onStart();
-        mSensorDataDumperActivity = this;
+
+        mDataToFileWriter = new DataToFileWriter("logFile.txt");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -174,6 +205,11 @@ public class SensorDataDumperActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDataToFileWriter.closeFile();
+    }
 
     @Override
     public void onClick(View v) {
@@ -232,11 +268,12 @@ public class SensorDataDumperActivity
     }
 
     public void makeDir() {
+        Date date = new Date();
         String dirPath = mSensorDataDumperActivity.getExternalFilesDir(null).getPath()
-                + "/" + mUserName;
-        File dir = new File(dirPath);
-        if (!dir.exists()) {
-            dir.mkdir();
+                + "/" + mUserName + "_" + Long.toString(new Timestamp(date.getTime()).getTime());
+        mParentDir = new File(dirPath);
+        if (!mParentDir.exists()) {
+            mParentDir.mkdir();
         }
     }
 
@@ -247,5 +284,10 @@ public class SensorDataDumperActivity
                 .setCancelable(true).show();
 
     }
+
+    public static synchronized  void writeLogs(String log) {
+        mDataToFileWriter.writeToFile(log);
+    }
+
 
 }

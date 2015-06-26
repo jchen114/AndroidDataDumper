@@ -46,7 +46,7 @@ public class StartCameraFragment extends Fragment implements CameraFragmentInter
 
     @Override
     public void didPressCameraButton(View v) {
-        Intent mIntent = new Intent(getActivity().getApplicationContext(), FrontBackCameraService.class);
+        Intent mIntent = new Intent(getActivity().getApplicationContext(), FrontBackCameraService_2.class);
         if (isDumping) {
             Log.i(mLogTag, "Stop Camera Service");
             getActivity().stopService(mIntent);
@@ -75,7 +75,7 @@ public class StartCameraFragment extends Fragment implements CameraFragmentInter
     @Override
     public void turnOnService() {
         if (!isDumping) {
-            mIntent = new Intent(getActivity().getApplicationContext(), FrontBackCameraService.class);
+            mIntent = new Intent(getActivity().getApplicationContext(), FrontBackCameraService_2.class);
             getActivity().startService(mIntent);
             isDumping = true;
             setButtonText();
@@ -85,7 +85,7 @@ public class StartCameraFragment extends Fragment implements CameraFragmentInter
     @Override
     public void turnOffService() {
         if (isDumping) {
-            mIntent = new Intent(getActivity().getApplicationContext(), FrontBackCameraService.class);
+            mIntent = new Intent(getActivity().getApplicationContext(), FrontBackCameraService_2.class);
             getActivity().stopService(mIntent);
             isDumping = false;
             setButtonText();

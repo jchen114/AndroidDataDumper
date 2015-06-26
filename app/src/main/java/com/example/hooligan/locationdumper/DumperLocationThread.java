@@ -64,7 +64,6 @@ public class DumperLocationThread extends Thread
                 .build();
         String toDump = "Connecting client";
         Log.i(mLogTag, toDump);
-        mDataToFileWriter.writeToFile(toDump);
         mGoogleApiClient.connect();
     }
 
@@ -79,7 +78,7 @@ public class DumperLocationThread extends Thread
     public void onConnected(Bundle bundle) {
         String toDump = "Connection successful";
         Log.i(mLogTag, toDump);
-        mDataToFileWriter.writeToFile(toDump);
+        mDataToFileWriter.writeToFile("Time\tLat\tLong\taltitude\tacc", false);
         startLocationUpdates();
     }
 
@@ -110,15 +109,21 @@ public class DumperLocationThread extends Thread
         mCurrentLocation = location;
         float accuracy = location.getAccuracy();
         mUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        String toDump = " Latitude: " + Double.toString(location.getLatitude())
-                + " Longitude: " + Double.toString(location.getLongitude())
-                + " Accuracy: " + Float.toString(accuracy);
+        String toDump = Double.toString(location.getLatitude()) + "\t\t"
+                + Double.toString(location.getLongitude()) + "\t\t"
+                + Double.toString(location.getAltitude()) + "\t\t"
+                + Float.toString(accuracy);
         Log.i(mLogTag, toDump);
         mDataToFileWriter.writeToFile(toDump);
     }
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+        try {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        } catch (IllegalStateException e) {
+            Log.e(mLogTag, "Illegal State exception");
+            e.printStackTrace();
+        }
     }
 }

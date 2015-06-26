@@ -12,6 +12,8 @@ import com.example.hooligan.SensorDataDumperActivity;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,11 +40,8 @@ public class MicrophoneDumperService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Microphone Dumper Service Starting", Toast.LENGTH_SHORT).show();
-        mDir = new File(SensorDataDumperActivity.mSensorDataDumperActivity.getExternalFilesDir(null), SensorDataDumperActivity.mUserName);
-        if (!mDir.exists()) {
-            mDir.mkdir();
-        }
-        mDir = new File(mDir, "microphone");
+
+        mDir = new File(SensorDataDumperActivity.mParentDir, "microphone");
         if (!mDir.exists()) {
             mDir.mkdir();
         }
@@ -64,7 +63,7 @@ public class MicrophoneDumperService extends Service {
             }
         };
         mTimer = new Timer("MicrophoneTimer");
-        mTimer.schedule(mTimerTask, 0, 3000);
+        mTimer.schedule(mTimerTask, 0, 10000);
         return START_STICKY;
     }
 
@@ -73,7 +72,8 @@ public class MicrophoneDumperService extends Service {
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mFileName = mDir.getPath() + "/" + Integer.toString(mDir.listFiles().length);
+        long time = new Timestamp(new Date().getTime()).getTime();
+        mFileName = mDir.getPath() + "/" + Integer.toString(mDir.listFiles().length) + " " + Long.toString(time);
         mRecorder.setOutputFile(mFileName);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
@@ -87,9 +87,11 @@ public class MicrophoneDumperService extends Service {
     }
 
     private void stopRecording() {
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;
+        if (mRecorder != null) {
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+        }
     }
 
     @Override
@@ -97,5 +99,7 @@ public class MicrophoneDumperService extends Service {
         super.onDestroy();
         Log.i(mLogTag, "On Destroy");
         mTimer.cancel();
+        mTimer.purge();
+        stopRecording();
     }
 }
