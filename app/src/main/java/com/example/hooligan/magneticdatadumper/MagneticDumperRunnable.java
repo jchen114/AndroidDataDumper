@@ -25,7 +25,7 @@ public class MagneticDumperRunnable extends Thread implements SensorEventListene
         this.mSensorManager = sensorManager;
         mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         mDataToFileWriter = new DataToFileWriter("Magnetic.txt");
-        mDataToFileWriter.writeToFile("Time\tX\tY\tZ", false);
+        mDataToFileWriter.writeToFile("Time, X, Y, Z", false);
     }
 
 
@@ -55,8 +55,8 @@ public class MagneticDumperRunnable extends Thread implements SensorEventListene
         values[0] = event.values[0];
         values[1] = event.values[1];
         values[2] = event.values[2];
-        String toDump = Float.toString(values[0])
-                + Float.toString(values[1])
+        String toDump = Float.toString(values[0]) + ", "
+                + Float.toString(values[1]) + ", "
                 + Float.toString(values[2]);
         Log.i(mLogTag, toDump);
         mDataToFileWriter.writeToFile(toDump);

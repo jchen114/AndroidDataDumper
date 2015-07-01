@@ -144,9 +144,6 @@
             android:enabled="true"
             android:exported="true" >
         </service>
-        <service
-            android:name=".cameradatadumper.CameraMetaSaver"
-            android:exported="false"/>
 
     </application>
 

@@ -50,7 +50,7 @@ public class DumperLocationThread extends Thread
     @Override
     public void run() {
         Looper.prepare();
-        mDataToFileWriter = new DataToFileWriter("location.txt");
+        mDataToFileWriter = new DataToFileWriter("Location.txt");
         buildGoogleApiClient();
         createLocationRequest();
         Looper.loop();
@@ -78,7 +78,7 @@ public class DumperLocationThread extends Thread
     public void onConnected(Bundle bundle) {
         String toDump = "Connection successful";
         Log.i(mLogTag, toDump);
-        mDataToFileWriter.writeToFile("Time\tLat\tLong\taltitude\tacc", false);
+        mDataToFileWriter.writeToFile("Time, Lat, Long, altitude, acc", false);
         startLocationUpdates();
     }
 
@@ -109,9 +109,9 @@ public class DumperLocationThread extends Thread
         mCurrentLocation = location;
         float accuracy = location.getAccuracy();
         mUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        String toDump = Double.toString(location.getLatitude()) + "\t\t"
-                + Double.toString(location.getLongitude()) + "\t\t"
-                + Double.toString(location.getAltitude()) + "\t\t"
+        String toDump = Double.toString(location.getLatitude()) + ", "
+                + Double.toString(location.getLongitude()) + ", "
+                + Double.toString(location.getAltitude()) + ", "
                 + Float.toString(accuracy);
         Log.i(mLogTag, toDump);
         mDataToFileWriter.writeToFile(toDump);

@@ -38,7 +38,7 @@ public class BatteryDumperService extends Service {
         Toast.makeText(this, "Battery Dumper Service Starting", Toast.LENGTH_SHORT).show();
         batteryIntent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         mDataToFileWriter = new DataToFileWriter("Battery-Level.txt");
-        mDataToFileWriter.writeToFile("Time\tLevel", false);
+        mDataToFileWriter.writeToFile("Time, Level", false);
         mTimerTask = new TimerTask() {
             @Override
             public void run() {

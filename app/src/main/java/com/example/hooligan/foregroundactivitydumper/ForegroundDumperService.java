@@ -40,7 +40,7 @@ public class ForegroundDumperService extends Service {
         mPackageManager = this.getPackageManager();
         Log.i(mLogTag, "Service is starting");
         mDataToFileWriter = new DataToFileWriter("Foreground.txt");
-        mDataToFileWriter.writeToFile("Time\tForeground App\tBackground Apps", false);
+        mDataToFileWriter.writeToFile("Time, Foreground App, Background Apps", false);
         mTimerTask = new TimerTask() {
             @Override
             public void run() {
@@ -51,7 +51,7 @@ public class ForegroundDumperService extends Service {
                         ActivityManager.RunningAppProcessInfo process = processes.get(i);
                         try {
                             CharSequence appName = mPackageManager.getApplicationLabel(mPackageManager.getApplicationInfo(process.processName, PackageManager.GET_META_DATA));
-                            toDump.append(Integer.toString(i) + ": " + (String) appName + "\t");
+                            toDump.append(Integer.toString(i) + ": " + (String) appName + ", ");
                         } catch (PackageManager.NameNotFoundException e) {
                             e.printStackTrace();
                         }

@@ -19,9 +19,12 @@ public class AirPressureDataRunnable extends Thread implements SensorEventListen
     private DataToFileWriter mDataToFileWriter;
     private String mLogTag = "AirPressureRunnable";
 
-    public AirPressureDataRunnable(SensorManager sensorManager) {
+    public AirPressureDataRunnable(SensorManager sensorManager) throws NullPointerException {
         mSensorManager = sensorManager;
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        if (mSensor == null) {
+            throw new NullPointerException();
+        }
     }
 
     @Override
@@ -29,7 +32,7 @@ public class AirPressureDataRunnable extends Thread implements SensorEventListen
         Looper.prepare();
         mSensorManager.registerListener(this, mSensor, 2000000);
         mDataToFileWriter = new DataToFileWriter("Pressure.txt");
-        mDataToFileWriter.writeToFile("Time\tPressure", false);
+        mDataToFileWriter.writeToFile("Time, Pressure", false);
         Looper.loop();
     }
 

@@ -73,7 +73,7 @@ public class MicrophoneDumperService extends Service {
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         long time = new Timestamp(new Date().getTime()).getTime();
-        mFileName = mDir.getPath() + "/" + Integer.toString(mDir.listFiles().length) + " " + Long.toString(time);
+        mFileName = mDir.getPath() + "/" + Integer.toString(mDir.listFiles().length) + "_" + Long.toString(time);
         mRecorder.setOutputFile(mFileName);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 

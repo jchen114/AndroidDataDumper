@@ -2,6 +2,7 @@ package com.example.hooligan.airpressuredatadumper;
 
 
 import android.content.Intent;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -23,6 +24,7 @@ public class AirPressureDataDumperFragment extends Fragment implements AirPressu
     private static final String KEY_IS_DUMPING = "KEY_IS_DUMPING";
     private String mLogTag = "AirPressureService";
     Intent mIntent;
+    public static AirPressureDataDumperFragment mAirPressureDataDumperFragment;
 
     public AirPressureDataDumperFragment() {
         // Required empty public constructor
@@ -35,6 +37,7 @@ public class AirPressureDataDumperFragment extends Fragment implements AirPressu
         if (savedInstanceState != null) {
             isDumping = savedInstanceState.getBoolean(KEY_IS_DUMPING);
         }
+        mAirPressureDataDumperFragment = this;
         return inflater.inflate(R.layout.fragment_air_pressure_data_dumper, container, false);
     }
 
@@ -47,6 +50,7 @@ public class AirPressureDataDumperFragment extends Fragment implements AirPressu
 
     @Override
     public void didPressAirPressureButton(View v) {
+
         //Intent accelIntent = new Intent(getActivity().getApplicationContext(), DumpAccelerometerService.class);
         mIntent = new Intent(getActivity().getApplicationContext(), AirPressureDataService.class);
         if (!isDumping) {

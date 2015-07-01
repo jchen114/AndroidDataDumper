@@ -22,7 +22,7 @@ public class TemperatureDataRunnable extends Thread implements SensorEventListen
     public TemperatureDataRunnable(SensorManager sensorManager) throws NullPointerException {
         Log.i(mLogTag, "Runnable create");
         mDataToFileWriter = new DataToFileWriter("Temperature.txt");
-        mDataToFileWriter.writeToFile("Time\tValue in C");
+        mDataToFileWriter.writeToFile("Time, Value in C", false);
         mSensorManager = sensorManager;
         mTemperatureSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
         if (mTemperatureSensor == null) {

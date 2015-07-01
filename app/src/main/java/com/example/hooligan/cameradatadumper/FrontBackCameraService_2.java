@@ -283,7 +283,7 @@ public class FrontBackCameraService_2 extends Service {
                                                TotalCaptureResult result) {
                     Log.i(mLogTag, "File written to: " + mFile.getPath());
                     closeCamera();
-                    Thread cameraMetaSaver = new Thread(new CameraMetaSaver(result, mUsingFrontCamera, mTimeStamp));
+                    Thread cameraMetaSaver = new Thread(new CameraMetaSaver(result, mUsingFrontCamera, mTimeStamp, mFile.getPath()));
                     cameraMetaSaver.start();
                     mUsingFrontCamera = !mUsingFrontCamera;
                 }

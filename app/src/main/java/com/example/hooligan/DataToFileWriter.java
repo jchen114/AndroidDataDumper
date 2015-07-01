@@ -41,7 +41,7 @@ public class DataToFileWriter {
                 mFileWriter = new FileWriter(mFile, true);
             }
             if (timestamp) {
-                mFileWriter.append(new Timestamp(date.getTime()).getTime() + "\t" + toWrite + "\r\n");
+                mFileWriter.append(new Timestamp(date.getTime()).getTime() + ", " + toWrite + "\r\n");
             } else {
                 mFileWriter.append(toWrite + "\r\n");
             }
@@ -60,7 +60,7 @@ public class DataToFileWriter {
             if (mFileWriter == null) {
                 mFileWriter = new FileWriter(mFile, true);
             }
-            mFileWriter.append(new Timestamp(date.getTime()).getTime() + "\t" + toWrite + "\r\n");
+            mFileWriter.append(new Timestamp(date.getTime()).getTime() + ", " + toWrite + "\r\n");
             mFileWriter.flush();
         } catch (IOException | NullPointerException e) {
             Log.i(mLogTag, "Error writing to file");

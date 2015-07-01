@@ -26,7 +26,7 @@ public class DumpAmbientLightRunnable extends Thread implements SensorEventListe
         mLightSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         try {
             mDataToFileWriter = new DataToFileWriter("Ambient-light.txt");
-            mDataToFileWriter.writeToFile("Time\tLuminance", false);
+            mDataToFileWriter.writeToFile("Time, Luminance", false);
         }
         catch (NullPointerException e) {
             e.printStackTrace();
