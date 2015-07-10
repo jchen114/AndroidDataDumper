@@ -61,6 +61,7 @@ public class ConnectivityDumperService extends Service {
     private StringBuilder wifiToDump;
     private StringBuilder blueToothToDump;
     private StringBuilder cellularToDump;
+    private BluetoothDevice mConnectedDevice;
 
     private ArrayList<BluetoothDevice> mBluetoothDevices;
     private Boolean mBTScanning = false;
@@ -97,7 +98,7 @@ public class ConnectivityDumperService extends Service {
             Log.i(mBTLogTag, "Discovery Finished");
 
             for (BluetoothDevice device : mBluetoothDevices) {
-                blueToothToDump.append(device.getName() + ", ");
+                blueToothToDump.append(device.getName() + "| ");
             }
 
             //Log.i(mBTLogTag, blueToothToDump.toString());
@@ -107,6 +108,28 @@ public class ConnectivityDumperService extends Service {
             mBTScanning = false;
         }
     };
+
+    // Action paired
+    private final BroadcastReceiver mConnectedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            Log.i(mBTLogTag, "Connected to: " + device.getName());
+            mConnectedDevice = device;
+
+        }
+    };
+
+    // Action disconnected
+    private final BroadcastReceiver mDisconnectedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            Log.i(mBTLogTag, "Disconnected from: " + device.getName());
+            mConnectedDevice = null;
+        }
+    };
+
 
     private static final String mLogTag = "ConnectivityService";
     private static final String mBTLogTag = "BluetoothService";
@@ -123,9 +146,9 @@ public class ConnectivityDumperService extends Service {
             mDataToFileWriterBluetooth = new DataToFileWriter("Bluetooth.txt");
             mDataToFileWriterCell = new DataToFileWriter("CellTower.txt");
 
-            mDataToFileWriterWifi.writeToFile("Time, [Current_SSID, Current_BSSID, Current_RSSI], [Ambient_SSID, Ambient_BSSID, Ambient_RSSI]", false);
-            mDataToFileWriterBluetooth.writeToFile("Time, Own, Paired, Ambient", false);
-            mDataToFileWriterCell.writeToFile("Time, Network Code, Network Name, Signal Strength, Cell Identity, Tracking Area Code", false);
+            mDataToFileWriterWifi.writeToFile("Time, Current_SSID | Current_BSSID | Current_RSSI, Ambient_SSID | Ambient_BSSID | Ambient_RSSI", false);
+            mDataToFileWriterBluetooth.writeToFile("Time, Own, Currently Bonded, Previously Bonded, Ambient", false);
+            mDataToFileWriterCell.writeToFile("Time, Type | Network Code | Country Code | Network Name | Signal Strength | Cell Identity | Physical Cell ID | Tracking Area Code", false);
         } catch (java.lang.NullPointerException e) {
             e.printStackTrace();
         }
@@ -141,6 +164,12 @@ public class ConnectivityDumperService extends Service {
         IntentFilter filterDone = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(mFinishedReceiver, filterDone);
 
+        IntentFilter filterConnected = new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED);
+        registerReceiver(mConnectedReceiver, filterConnected);
+
+        IntentFilter filterDisconnected = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        registerReceiver(mDisconnectedReceiver, filterDisconnected);
+
         mTimerTask = new TimerTask() {
             @Override
             public void run() {
@@ -150,17 +179,17 @@ public class ConnectivityDumperService extends Service {
                 mMobile = mConnectionManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
                 mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-                Log.i(mLogTag, "Service Provider Name: " + mTelephonyManager.getSimOperatorName());
+                //Log.i(mLogTag, "Service Provider Name: " + mTelephonyManager.getSimOperatorName());
 
                 mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
-                Log.i(mLogTag, "Checking connections...");
+                Log.i(mLogTag, "Checking wifi connections...");
                 wifiToDump = new StringBuilder();
                 if (mWifi.isConnected()) {
                     Log.i(mLogTag, "Wifi is connected");
                     wifiConnected();
                 } else {
-                    wifiToDump.append("[0], ");
+                    wifiToDump.append("-, ");
                 }
                 scanWifi();
                 if (mMobile.isConnected()) {
@@ -189,12 +218,18 @@ public class ConnectivityDumperService extends Service {
                     if (!mBluetoothAdapter.isEnabled()) { // Bluetooth not enabled
                         blueToothToDump = new StringBuilder();
                         Log.i(mBTLogTag, "Bluetooth not enabled");
-                        blueToothToDump.append("0, 0, 0");
+                        blueToothToDump.append("0, -, -");
+                        mDataToFileWriterBluetooth.writeToFile(blueToothToDump.toString());
                     } else {
                         if (!mBTScanning) {
                             blueToothToDump = new StringBuilder();
                             Log.i(mBTLogTag, "Not scanning, make a new entry");
                             blueToothToDump.append("1, ");
+                            if (mConnectedDevice != null) {
+                                blueToothToDump.append(mConnectedDevice.getName() + ", ");
+                            } else {
+                                blueToothToDump.append("-, ");
+                            }
                             bluetoothConnected();
                             scanBluetooth();
                         } else {
@@ -220,9 +255,9 @@ public class ConnectivityDumperService extends Service {
 
     private void wifiConnected() {
         WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
-        wifiToDump.append("[" + wifiInfo.getSSID()
-                + "," + wifiInfo.getBSSID() + ", "
-                + Integer.toString(wifiInfo.getRssi()) + "], ");
+        wifiToDump.append(wifiInfo.getSSID()
+                + "| " + wifiInfo.getBSSID() + "| "
+                + Integer.toString(wifiInfo.getRssi()) + ", ");
         Log.i(mLogTag, wifiToDump.toString());
         //mDataToFileWriterWifi.writeToFile(toDump);
     }
@@ -231,11 +266,10 @@ public class ConnectivityDumperService extends Service {
         Log.i(mLogTag, "Scanning Wifi");
         List<android.net.wifi.ScanResult> scanresults = mWifiManager.getScanResults();
         for (android.net.wifi.ScanResult scanResult : scanresults) {
-            String dump = scanResult.SSID + " last seen:" + Long.toString(scanResult.timestamp);
             //Log.i(mLogTag, dump);
-            wifiToDump.append("[" + scanResult.SSID
-                    + "," + scanResult.BSSID + ","
-                    + Integer.toString(scanResult.level) + "], ");
+            wifiToDump.append(scanResult.SSID
+                    + "| " + scanResult.BSSID + "| "
+                    + Integer.toString(scanResult.level) + ", ");
         }
         mDataToFileWriterWifi.writeToFile(wifiToDump.toString());
     }
@@ -244,11 +278,12 @@ public class ConnectivityDumperService extends Service {
         Log.i(mBTLogTag, "Bluetooth Connected");
         Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
         if (bondedDevices.size() == 0) {
-            blueToothToDump.append("0, ");
+            blueToothToDump.append("-, ");
         } else {
             for (BluetoothDevice bluetoothDevice : bondedDevices) {
-                blueToothToDump.append(bluetoothDevice.getName() + ", ");
+                blueToothToDump.append(bluetoothDevice.getName() + "| ");
             }
+            blueToothToDump.append(", ");
         }
     }
 
@@ -264,7 +299,7 @@ public class ConnectivityDumperService extends Service {
     private void cellularData() {
         if (mTelephonyManager != null) {
             try {
-                //Type:[Time, Network Code, Country Code, Network Name, Signal Strength, Cell Identity, Physical Cell Id, Tracking Area Code]
+                // Time , Type | Mobile Code | Country Code | Network Name | Signal Strength | Cell Identity | Physical Cell Id | Tracking Area Code
 
                 List<?> cellInfos = mTelephonyManager.getAllCellInfo();
                 Log.i(mCellLogTag, "Getting Cell Tower information");
@@ -274,151 +309,195 @@ public class ConnectivityDumperService extends Service {
                     String cellClassName = mTelephonyManager.getAllCellInfo().get(i).getClass().getName().toLowerCase();
                     if (cellClassName.contains("wcdma")) {
                         Log.i(mCellLogTag, "wcdma");
-                        cellularToDump.append("wcdma: [");
+                        // Type
+                        cellularToDump.append("wcdma | ");
                         CellInfoWcdma cellinfowcdma = (CellInfoWcdma) mTelephonyManager.getAllCellInfo().get(i);
                         CellIdentityWcdma cellId = cellinfowcdma.getCellIdentity();
-                        if (cellId.getMnc() != Integer.MAX_VALUE) { // Mobile Network Code
-                            cellularToDump.append(Integer.toString(cellId.getMnc()) + ", ");
+                        // Mobile Network Code
+                        if (cellId.getMnc() != Integer.MAX_VALUE) {
+                            cellularToDump.append(Integer.toString(cellId.getMnc()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
+                        // Country code
                         if(cellId.getMcc() != Integer.MAX_VALUE) {
-                            cellularToDump.append(Integer.toString(cellId.getMcc()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getMcc()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
+                        // Network Name
                         String name = mTelephonyManager.getSimOperatorName();
-                        cellularToDump.append(name + ", ");
+                        if (name.length() > 0) {
+                            cellularToDump.append(name + " | "); // Name
+                        } else {
+                            cellularToDump.append("- | ");
+                        }
+                        // Signal Strength
                         CellSignalStrengthWcdma cellSignalStrengthWcdma = cellinfowcdma.getCellSignalStrength();
                         Integer signalStrength = cellSignalStrengthWcdma.getDbm();
-                        if (signalStrength == Integer.MAX_VALUE || signalStrength == Integer.MIN_VALUE) {
-                            cellularToDump.append("0, ");
+                        if (signalStrength < -193) {
+                            cellularToDump.append("- | ");
                         } else {
-                            cellularToDump.append(signalStrength.toString() + ", ");
+                            cellularToDump.append(signalStrength.toString() + " | ");
                         }
+                        // Cell Id
                         if (cellId.getCid() != Integer.MAX_VALUE) { // Cell Identity
-                            cellularToDump.append(Integer.toString(cellId.getCid()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getCid()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
-                        cellularToDump.append("0, "); // No physical cell id
+                        // Physical Cell Id
+                        cellularToDump.append("- | "); // No physical cell id
+                        // Tracking Area code
                         if (cellId.getLac() != Integer.MAX_VALUE) { // Location Area Code
                             cellularToDump.append(Integer.toString(cellId.getLac()));
                         } else {
-                            cellularToDump.append("0");
+                            cellularToDump.append(" - ");
                         }
-                        cellularToDump.append("],");
+                        cellularToDump.append(", ");
 
                     } else if (cellClassName.contains("gsm")) {
                         Log.i(mCellLogTag, "gsm");
-                        cellularToDump.append("gsm: [");
+                        // Type
+                        cellularToDump.append("gsm | ");
                         CellInfoGsm cellinfogsm = (CellInfoGsm) mTelephonyManager.getAllCellInfo().get(i);
                         CellIdentityGsm cellId = cellinfogsm.getCellIdentity();
+                        // Network Code
                         if (cellId.getMnc() != Integer.MAX_VALUE) { // Mobile Network Code
-                            cellularToDump.append(Integer.toString(cellId.getMnc()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getMnc()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
+                        // Country Code
                         if(cellId.getMcc() != Integer.MAX_VALUE) {
-                            cellularToDump.append(Integer.toString(cellId.getMcc()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getMcc()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
+                        // Name
                         String name = mTelephonyManager.getSimOperatorName();
-                        cellularToDump.append(name + ", "); // Name
+                        if (name.length() > 0) {
+                            cellularToDump.append(name + " | "); // Name
+                        } else {
+                            cellularToDump.append("- | ");
+                        }
+                        // Strength
                         CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
                         Integer signalStrength = cellSignalStrengthGsm.getDbm();
-                        if (signalStrength == Integer.MAX_VALUE || signalStrength == Integer.MIN_VALUE) {
-                            cellularToDump.append("0, ");
+                        if (signalStrength < - 193) {
+                            cellularToDump.append("- | ");
                         } else {
-                            cellularToDump.append(signalStrength.toString() + ", ");
+                            cellularToDump.append(signalStrength.toString() + " | ");
                         }
+                        // Cell Id
                         if (cellId.getCid() != Integer.MAX_VALUE) { // Cell Identity
-                            cellularToDump.append(Integer.toString(cellId.getCid()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getCid()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
-                        cellularToDump.append("0, "); // No physical cell id
+                        // Physical Id
+                        cellularToDump.append("- | "); // No physical cell id
+                        // Tracking Area Code
                         if (cellId.getLac() != Integer.MAX_VALUE) { // Location Area Code
                             cellularToDump.append(Integer.toString(cellId.getLac()));
                         } else {
-                            cellularToDump.append("0");
+                            cellularToDump.append("-");
                         }
-                        cellularToDump.append("],");
+                        cellularToDump.append(", ");
                     } else if (cellClassName.contains("lte")) {
                         Log.i(mCellLogTag, "lte");
-                        cellularToDump.append("lte: [");
+                        // Type
+                        cellularToDump.append("lte | ");
                         CellInfoLte cellinfolte = (CellInfoLte) mTelephonyManager.getAllCellInfo().get(i);
                         CellIdentityLte cellId = cellinfolte.getCellIdentity();
+                        // Mobile Network Code
                         if (cellId.getMnc() != Integer.MAX_VALUE) { // Mobile Network Code
-                            cellularToDump.append(Integer.toString(cellId.getMnc()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getMnc()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
+                        // Country Code
                         if(cellId.getMcc() != Integer.MAX_VALUE) {
-                            cellularToDump.append(Integer.toString(cellId.getMcc()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getMcc()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
+                        // Name
                         String name = mTelephonyManager.getSimOperatorName();
-                        cellularToDump.append(name + ", "); // Name
+                        if (name.length() > 0) {
+                            cellularToDump.append(name + " | "); // Name
+                        } else {
+                            cellularToDump.append("- | ");
+                        }
+                        // Strength
                         CellSignalStrengthLte cellSignalStrengthLte = cellinfolte.getCellSignalStrength();
-                        Integer signalStrength = cellSignalStrengthLte.getDbm(); // Signal Strength
-                        if (signalStrength == Integer.MAX_VALUE || signalStrength == Integer.MIN_VALUE) {
-                            cellularToDump.append("0, ");
+                        Integer signalStrength = cellSignalStrengthLte.getDbm();
+                        if (signalStrength < -193) {
+                            cellularToDump.append("- | ");
                         } else {
-                            cellularToDump.append(signalStrength.toString() + ", ");
+                            cellularToDump.append(signalStrength.toString() + " | ");
                         }
-                        if (cellId.getCi() != Integer.MAX_VALUE) { // Cell Identity
-                            cellularToDump.append(Integer.toString(cellId.getCi()) + ", ");
+                        // Cell Id
+                        if (cellId.getCi() != Integer.MAX_VALUE && cellId.getCi() != 27472898) { // Cell Identity
+                            cellularToDump.append(Integer.toString(cellId.getCi()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
+                        // Physical Cell Id
                         if (cellId.getPci() != Integer.MAX_VALUE) { // Physical Cell Identity
-                            cellularToDump.append(Integer.toString(cellId.getPci()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getPci()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
+                        // Tracking Area Code
                         if (cellId.getTac() != Integer.MAX_VALUE) { // Location Area Code
                             cellularToDump.append(Integer.toString(cellId.getTac()));
                         } else {
-                            cellularToDump.append("0");
+                            cellularToDump.append("-");
                         }
-                        cellularToDump.append("],");
+                        cellularToDump.append(", ");
 
                     } else if (cellClassName.contains("cdma")) {
                         Log.i(mCellLogTag, "cdma");
-                        cellularToDump.append("cdma: [");
+                        // Type
+                        cellularToDump.append("cdma | ");
                         CellInfoCdma cellinfocdma = (CellInfoCdma) mTelephonyManager.getAllCellInfo().get(i);
                         CellIdentityCdma cellId = cellinfocdma.getCellIdentity();
+                        // Mobile Network code
                         if (cellId.getNetworkId() != Integer.MAX_VALUE) { // Mobile Network Code
-                            cellularToDump.append(Integer.toString(cellId.getNetworkId()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getNetworkId()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
-                        cellularToDump.append("0, "); // Mobile Country Code
+                        // MCC
+                        cellularToDump.append("- | "); // Mobile Country Code
+                        // Name
                         String name = mTelephonyManager.getSimOperatorName();
-                        cellularToDump.append(name + ", "); // Name
+                        cellularToDump.append(name + " | "); // Name
+                        // Strength
                         CellSignalStrengthCdma cellSignalStrengthCdma = cellinfocdma.getCellSignalStrength();
                         Integer signalStrength = cellSignalStrengthCdma.getDbm(); // Signal Strength
-                        if (signalStrength == Integer.MAX_VALUE || signalStrength == Integer.MIN_VALUE) {
-                            cellularToDump.append("0, ");
+                        if (signalStrength < -193) {
+                            cellularToDump.append("- | ");
                         } else {
-                            cellularToDump.append(signalStrength.toString() + ", ");
+                            cellularToDump.append(signalStrength.toString() + " | ");
                         }
+                        // Cell Id
                         if (cellId.getBasestationId() != Integer.MAX_VALUE) { // Cell Identity
-                            cellularToDump.append(Integer.toString(cellId.getBasestationId()) + ", ");
+                            cellularToDump.append(Integer.toString(cellId.getBasestationId()) + " | ");
                         } else {
-                            cellularToDump.append("0, ");
+                            cellularToDump.append("- | ");
                         }
-                        cellularToDump.append("0, "); // No physical cell id
-                        if (cellId.getLongitude() != Integer.MAX_VALUE) { // Location of basestation
+                        // Physical Cell Id
+                        cellularToDump.append("- | "); // No physical cell id
+                        // Tracking Area Code
+                        if (cellId.getLongitude() != Integer.MAX_VALUE && cellId.getLongitude() != 0) { // Location of basestation
                             cellularToDump.append("Lat: " + Integer.toString(cellId.getLatitude())
-                                    + ", Long: " + Integer.toString(cellId.getLongitude()));
+                                    + " Long: " + Integer.toString(cellId.getLongitude()));
                         } else {
-                            cellularToDump.append("0");
+                            cellularToDump.append("-");
                         }
-                        cellularToDump.append("],");
+                        cellularToDump.append(", ");
                     }
                 }
                 Log.i(mCellLogTag, cellularToDump.toString());
@@ -438,6 +517,8 @@ public class ConnectivityDumperService extends Service {
         unregisterReceiver(mFoundReceiver);
         unregisterReceiver(mStartedReceiver);
         unregisterReceiver(mFinishedReceiver);
+        unregisterReceiver(mConnectedReceiver);
+        unregisterReceiver(mDisconnectedReceiver);
         mDataToFileWriterWifi.closeFile();
         mDataToFileWriterBluetooth.closeFile();
         mDataToFileWriterCell.closeFile();

@@ -79,18 +79,28 @@ public class MicrophoneDumperService extends Service {
 
         try {
             mRecorder.prepare();
+            mRecorder.start();
         } catch (IOException e) {
             Log.e(mLogTag, "prepare() failed");
+        } catch (NullPointerException e) {
+            Log.e(mLogTag, "recorder start failed: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        mRecorder.start();
+
     }
 
     private void stopRecording() {
         if (mRecorder != null) {
-            mRecorder.stop();
-            mRecorder.release();
-            mRecorder = null;
+            try {
+                mRecorder.stop();
+                mRecorder.release();
+                mRecorder = null;
+            } catch (RuntimeException e) {
+                Log.i(mLogTag, "Runtime exception: " + e.getMessage());
+                e.printStackTrace();
+
+            }
         }
     }
 

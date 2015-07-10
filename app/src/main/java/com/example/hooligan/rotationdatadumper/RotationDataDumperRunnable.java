@@ -34,7 +34,7 @@ public class RotationDataDumperRunnable extends Thread implements SensorEventLis
         mSensorManager = sensorManager;
         mRotationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         mDataToFileWriter = new DataToFileWriter("Rotation.txt");
-        mDataToFileWriter.writeToFile("Time, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]", false);
+        mDataToFileWriter.writeToFile("Time, 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16", false);
     }
 
     @Override
@@ -47,9 +47,12 @@ public class RotationDataDumperRunnable extends Thread implements SensorEventLis
     @Override
     public void onSensorChanged(SensorEvent event) {
         SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
-        String toDump = String.format("%s", Arrays.toString(mRotationMatrix));
-        mDataToFileWriter.writeToFile(toDump);
-        Log.i(mLogTag, toDump);
+        StringBuilder toDump = new StringBuilder();
+        for (int i = 0; i < 16; i ++) {
+            toDump.append(Float.toString(mRotationMatrix[i]) + " | ");
+        }
+        mDataToFileWriter.writeToFile(toDump.toString());
+        Log.i(mLogTag, toDump.toString());
     }
 
     @Override

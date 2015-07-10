@@ -1,4 +1,4 @@
-package com.example.hooligan.batterydatadumper;
+package com.example.hooligan.callstatedumper;
 
 
 import android.content.Intent;
@@ -8,20 +8,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.hooligan.R;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class BatteryDumperFragment extends Fragment implements BatteryFragmentInterface {
+public class CallStateDataFragment extends Fragment implements CallStateDataFragmentInterface{
 
     private Boolean isDumping = false;
-    Button dumpBatteryButton;
+    Button dumpCallStateButton;
     private static final String KEY_IS_DUMPING = "KEY_IS_DUMPING";
     private Intent mIntent;
 
-    public BatteryDumperFragment() {
+    public CallStateDataFragment() {
         // Required empty public constructor
     }
 
@@ -29,16 +30,13 @@ public class BatteryDumperFragment extends Fragment implements BatteryFragmentIn
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            isDumping = savedInstanceState.getBoolean(KEY_IS_DUMPING);
-        }
-        return inflater.inflate(R.layout.fragment_battery__dumper, container, false);
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_call_state_data, container, false);
     }
 
     @Override
-    public void didPressBatteryButton(View v) {
-
-        mIntent = new Intent(getActivity().getApplicationContext(), BatteryDumperService.class);
+    public void didPressCallButton(View v) {
+        mIntent = new Intent(getActivity().getApplicationContext(), CallStateMonitorService.class);
 
         if (!isDumping) {
             getActivity().startService(mIntent);
@@ -48,29 +46,29 @@ public class BatteryDumperFragment extends Fragment implements BatteryFragmentIn
 
         isDumping = !isDumping;
         setButtonText();
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        dumpBatteryButton = (Button) getView().findViewById(R.id.battery_button);
+        dumpCallStateButton = (Button) getView().findViewById(R.id.call_button);
         setButtonText();
     }
 
     private void setButtonText() {
         if (isDumping) {
-            dumpBatteryButton.setText("Stop Dumping Battery Info");
+            dumpCallStateButton.setText("Stop Dumping Call Info");
         } else  {
-            dumpBatteryButton.setText("Start Dumping Battery Info");
+            dumpCallStateButton.setText("Start Dumping Call Info");
         }
     }
 
     @Override
     public void turnOnService() {
         if (!isDumping) {
-            mIntent = new Intent(getActivity().getApplicationContext(), BatteryDumperService.class);
+            mIntent = new Intent(getActivity().getApplicationContext(), CallStateMonitorService.class);
             getActivity().startService(mIntent);
+            Toast.makeText(getActivity().getApplicationContext(), "Starting Call service", Toast.LENGTH_SHORT).show();
             isDumping = true;
             setButtonText();
         }
@@ -79,11 +77,10 @@ public class BatteryDumperFragment extends Fragment implements BatteryFragmentIn
     @Override
     public void turnOffService() {
         if (isDumping) {
-            mIntent = new Intent(getActivity().getApplicationContext(), BatteryDumperService.class);
+            mIntent = new Intent(getActivity().getApplicationContext(), CallStateMonitorService.class);
             getActivity().stopService(mIntent);
             isDumping = false;
             setButtonText();
         }
     }
-    
 }

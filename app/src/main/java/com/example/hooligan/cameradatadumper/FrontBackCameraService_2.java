@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.ImageFormat;
+import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -21,6 +22,7 @@ import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.example.hooligan.DataToFileWriter;
 import com.example.hooligan.SensorDataDumperActivity;
@@ -76,6 +78,8 @@ public class FrontBackCameraService_2 extends Service {
     private StreamConfigurationMap map;
     private Timestamp mTimeStamp;
 
+    private boolean mStopService = false;
+    private boolean mOpeningCamera = false;
 
     private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
 
@@ -87,7 +91,13 @@ public class FrontBackCameraService_2 extends Service {
             mCameraDevice = cameraDevice;
             // Capture the image
             mCameraDeviceOpened = true;
-            beginCapture();
+            mOpeningCamera = false;
+            if (!mStopService) {
+                beginCapture();
+            } else {
+                closeCamera();
+            }
+
         }
 
         @Override
@@ -95,21 +105,33 @@ public class FrontBackCameraService_2 extends Service {
             mCameraOpenCloseLock.release();
             cameraDevice.close();
             mCameraDevice = null;
+            mOpeningCamera = false;
         }
 
         @Override
         public void onClosed(CameraDevice camera) {
+            super.onClosed(camera);
             Log.i(mLogTag, "onClosed");
             mCameraDeviceOpened = false;
-            super.onClosed(camera);
             try {
                 // switch to the Front camera now
-                if (mUsingFrontCamera) {
+                if (mUsingFrontCamera && !mStopService) {
                     mCameraManager.openCamera(mFrontCameraId, mStateCallback, mBackgroundHandler);
+                    Log.i(mLogTag, "Opening Camera");
+                    mOpeningCamera = true;
+
                 }
             } catch (CameraAccessException e) {
                 Log.e(mLogTag, "Error accessing front camera");
                 e.printStackTrace();
+            }
+            if (!mUsingFrontCamera) {
+                SensorDataDumperActivity.mSensorDataDumperActivity.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        StartCameraFragment.mStartCameraFragment.setEnabled();
+                    }
+                });
             }
 
         }
@@ -181,8 +203,16 @@ public class FrontBackCameraService_2 extends Service {
                             // Open it
                             try {
                                 if (!mUsingFrontCamera) {
+                                    SensorDataDumperActivity.mSensorDataDumperActivity.mHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            StartCameraFragment.mStartCameraFragment.setDisabled();
+                                        }
+                                    });
                                     // Begin with the back camera
                                     mCameraManager.openCamera(mBackCameraId, mStateCallback, mBackgroundHandler);
+                                    Log.i(mLogTag, "Opening Camera");
+                                    mOpeningCamera = true;
                                 }
                             } catch (CameraAccessException e) {
                                 Log.e(mLogTag, "Timer Task Camera Access Exception");
@@ -194,7 +224,7 @@ public class FrontBackCameraService_2 extends Service {
                 };
 
                 mTimer = new Timer(mLogTag);
-                mTimer.schedule(mTimerTask, 0, 6000);
+                mTimer.schedule(mTimerTask, 0, 7000);
 
                 return START_STICKY;
             }
@@ -303,8 +333,14 @@ public class FrontBackCameraService_2 extends Service {
             mTimer.cancel();
             mTimer.purge();
         }
-        stopBackgroundThread();
-        closeCamera();
+        mStopService = true;
+        if (mOpeningCamera) {
+            Log.i(mLogTag, "Camera is opening");
+        } else {
+            Log.i(mLogTag, "Camera is not opening");
+            stopBackgroundThread();
+            closeCamera();
+        }
         if (null != mImageReader) {
             mImageReader.close();
             mImageReader = null;

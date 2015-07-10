@@ -79,62 +79,59 @@ public class CameraMetaSaver implements Runnable {
                 String[] tokens = name.split("\\.");
                 String keyName = tokens[tokens.length-1];
 
-                columns.append(keyName + ", ");
+                columns.append(keyName + " ; ");
 
                 if (keyName.equalsIgnoreCase("testpatterndata")) {
-                    values.append("[");
                     int[] datas = (int[]) mCaptureResult.get(key);
                     for (int data : datas) {
-                        values.append(Integer.toString(data)+ ", ");
+                        values.append(Integer.toString(data)+ " | ");
                     }
-                    values.append("], ");
+                    values.append(" ; ");
                 } else {
 
                     String className = mCaptureResult.get(key).getClass().getName().toLowerCase();
 
                     if (className.contains("meteringrectangle")) {
                         MeteringRectangle[] mrs = (MeteringRectangle[]) mCaptureResult.get(key);
-                        values.append("[");
                         for (MeteringRectangle mr : mrs) {
-                            values.append(mr.toString());
+                            values.append(mr.toString() + " | ");
                         }
-                        values.append("], ");
+                        values.append(" ; ");
                     } else if (className.contains("rect")) {
                         values.append(((Rect) mCaptureResult.get(key)).toShortString() + "\t");
                     } else if (className.contains("rational")) {
                         Rational[] rs = (Rational[]) mCaptureResult.get(key);
-                        values.append("[");
                         for (Rational r : rs) {
-                            values.append(r.toString() + ", ");
+                            values.append(r.toString() + " | ");
                         }
-                        values.append("], ");
+                        values.append(" ; ");
                     } else if (className.contains("point")) {
                         Point[] pts = (Point[]) mCaptureResult.get(key);
-                        values.append("[");
                         for (Point p : pts) {
-                            values.append(p.toString());
+                            values.append(p.toString() + " | ");
                         }
-                        values.append("], ");
+                        values.append(" ; ");
                     } else if (className.contains("face")) {
 
-                    } else if (className.contains("pair")) {
+                    } else if (className.contains("lensshadingmap")) {
+
+                    }else if (className.contains("pair")) {
                         Log.i(mLogTag, className);
 
                         if (className.contains("focus")) {
                             Pair pair = (Pair) mCaptureResult.get(key);
-                            values.append("[" + pair.first.toString() + ", " + pair.second.toString() +"], ");
+                            values.append(pair.first.toString() + " " + pair.second.toString() +" ; ");
                         }
 
                         if (className.contains("noise")) {
                             Pair[] pairs = (Pair[]) mCaptureResult.get(key);
-                            values.append("[");
                             for (Pair p : pairs) {
-                                values.append("(" + p.first.toString() + ", " + p.second.toString() + "),");
+                                values.append(p.first.toString() + " " + p.second.toString() + " | ");
                             }
-                            values.append("], ");
+                            values.append(" ; ");
                         }
                     } else {
-                        values.append("[" + mCaptureResult.get(key).toString() + "], ");
+                        values.append(mCaptureResult.get(key).toString() + " ; ");
                     }
                 }
             }

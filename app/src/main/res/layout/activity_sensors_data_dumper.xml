@@ -2,7 +2,8 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:id="@+id/sensor_activity">
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -104,6 +105,7 @@
             android:name="com.example.hooligan.microphonedumper.MicrophoneDumperFragment"
             tools:layout="@layout/fragment_microphone_dumper"
             android:layout_gravity="center"
+            android:visibility="gone"
             />
 
         <fragment
@@ -169,6 +171,17 @@
             android:id="@+id/proximity_fragment"
             android:name="com.example.hooligan.proximitydatadumper.ProximityDataDumperFragment"
             tools:layout="@layout/fragment_proximity_data_dumper"
+            android:layout_gravity="center"
+            />
+
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/call_fragment"
+            android:name="com.example.hooligan.callstatedumper.CallStateDataFragment"
+            tools:layout="@layout/fragment_call_state_data"
             android:layout_gravity="center"
             />
 

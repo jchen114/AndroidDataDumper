@@ -21,6 +21,9 @@ public class StartCameraFragment extends Fragment implements CameraFragmentInter
     private Button mCamButton;
     private static final String KEY_IS_DUMPING = "KEY_IS_DUMPING";
     private static final String mLogTag = "StartCameraFragment";
+    public static StartCameraFragment mStartCameraFragment;
+    private Boolean mIsSafeToStop = true;
+    private Boolean mStopRequested = false;
     Intent mIntent;
 
     public StartCameraFragment() {
@@ -41,6 +44,7 @@ public class StartCameraFragment extends Fragment implements CameraFragmentInter
     public void onStart() {
         super.onStart();
         mCamButton = (Button) getView().findViewById(R.id.cam_button);
+        mStartCameraFragment = this;
         setButtonText();
     }
 
@@ -74,21 +78,39 @@ public class StartCameraFragment extends Fragment implements CameraFragmentInter
 
     @Override
     public void turnOnService() {
-        if (!isDumping) {
+        if (!isDumping && mIsSafeToStop) {
             mIntent = new Intent(getActivity().getApplicationContext(), FrontBackCameraService_2.class);
             getActivity().startService(mIntent);
             isDumping = true;
             setButtonText();
         }
+        mStopRequested = false;
     }
 
     @Override
     public void turnOffService() {
-        if (isDumping) {
+        mStopRequested = true;
+        if (isDumping && mIsSafeToStop) {
             mIntent = new Intent(getActivity().getApplicationContext(), FrontBackCameraService_2.class);
             getActivity().stopService(mIntent);
             isDumping = false;
+            mStopRequested = false;
             setButtonText();
         }
     }
+
+    public void setEnabled() {
+        mIsSafeToStop = true;
+        mCamButton.setEnabled(true);
+        if (mStopRequested) {
+            turnOffService();
+        }
+    }
+
+    public void setDisabled() {
+        mIsSafeToStop = false;
+        mCamButton.setEnabled(false);
+    }
+
+
 }

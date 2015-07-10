@@ -109,10 +109,18 @@ public class DumperLocationThread extends Thread
         mCurrentLocation = location;
         float accuracy = location.getAccuracy();
         mUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        String toDump = Double.toString(location.getLatitude()) + ", "
-                + Double.toString(location.getLongitude()) + ", "
-                + Double.toString(location.getAltitude()) + ", "
-                + Float.toString(accuracy);
+        String toDump = "";
+        if (location.hasAltitude()) {
+            toDump = Double.toString(location.getLatitude()) + ", "
+                    + Double.toString(location.getLongitude()) + ", "
+                    + Double.toString(location.getAltitude()) + ", "
+                    + Float.toString(accuracy);
+        } else {
+            toDump = Double.toString(location.getLatitude()) + ", "
+                    + Double.toString(location.getLongitude()) + ", "
+                    + "- , "
+                    + Float.toString(accuracy);
+        }
         Log.i(mLogTag, toDump);
         mDataToFileWriter.writeToFile(toDump);
     }

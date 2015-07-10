@@ -1,5 +1,6 @@
 package com.example.hooligan.ambientlightdatadumper;
 
+import android.content.ContentResolver;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -26,7 +27,7 @@ public class DumpAmbientLightRunnable extends Thread implements SensorEventListe
         mLightSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         try {
             mDataToFileWriter = new DataToFileWriter("Ambient-light.txt");
-            mDataToFileWriter.writeToFile("Time, Luminance", false);
+            mDataToFileWriter.writeToFile("Time, Luminance, Screen Brightness", false);
         }
         catch (NullPointerException e) {
             e.printStackTrace();
@@ -58,8 +59,10 @@ public class DumpAmbientLightRunnable extends Thread implements SensorEventListe
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        ContentResolver contentResolver = SensorDataDumperActivity.mSensorDataDumperActivity.getApplicationContext().getContentResolver();
+        int curBrightnessValue = android.provider.Settings.System.getInt(contentResolver, android.provider.Settings.System.SCREEN_BRIGHTNESS,-1);
         float luminance = event.values[0];
-        String toDump = Float.toString(luminance);
+        String toDump = Float.toString(luminance) + " , " + Integer.toString(curBrightnessValue);
         Log.i(mLogTag, toDump);
         mDataToFileWriter.writeToFile(toDump);
     }
