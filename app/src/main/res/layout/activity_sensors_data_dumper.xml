@@ -185,6 +185,17 @@
             android:layout_gravity="center"
             />
 
+        <fragment
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/screen_fragment"
+            android:name="com.example.hooligan.screenstatedumper.ScreenStateDumperFragment"
+            tools:layout="@layout/fragment_screen_state_dumper"
+            android:layout_gravity="center"
+            />
+
     </LinearLayout>
 
 </ScrollView>

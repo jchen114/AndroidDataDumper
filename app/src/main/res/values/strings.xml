@@ -21,9 +21,9 @@
     <string name="air_pressure_start">Start Dumping Air Pressure</string>
     <string name="proximity_start">Start Dumping Air Pressure</string>
     <string name="call_start">Start Dumping Call Data</string>
+    <string name="screen_start">Start Dumping Screen State</string>
 
     <string name="start_everything">Start all services</string>
     <string name="stop_everything">Stop all services</string>
-
 
 </resources>

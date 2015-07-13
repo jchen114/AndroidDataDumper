@@ -140,9 +140,13 @@
             android:enabled="true"
             android:exported="true" >
         </service>
-
         <service
             android:name=".callstatedumper.CallStateMonitorService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".screenstatedumper.ScreenStateDumperService"
             android:enabled="true"
             android:exported="true" >
         </service>

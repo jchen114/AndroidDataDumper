@@ -42,6 +42,7 @@ import com.example.hooligan.magneticdatadumper.MagneticFragmentInterface;
 import com.example.hooligan.microphonedumper.MicrophoneFragmentInterface;
 import com.example.hooligan.proximitydatadumper.ProximityFragmentInterface;
 import com.example.hooligan.rotationdatadumper.RotationFragmentInterface;
+import com.example.hooligan.screenstatedumper.ScreenStateFragmentInterface;
 import com.example.hooligan.temperaturedatadumper.TemperatureFragmentInterface;
 
 import java.io.File;
@@ -74,6 +75,7 @@ public class SensorDataDumperActivity
     private AirPressureFragmentInterface air_fragment;
     private ProximityFragmentInterface proximity_fragment;
     private CallStateDataFragmentInterface call_fragment;
+    private ScreenStateFragmentInterface screen_fragment;
 
     private Boolean didEnterName = false;
 
@@ -115,6 +117,7 @@ public class SensorDataDumperActivity
         air_fragment = (AirPressureFragmentInterface) getFragmentManager().findFragmentById(R.id.air_fragment);
         proximity_fragment = (ProximityFragmentInterface) getFragmentManager().findFragmentById(R.id.proximity_fragment);
         call_fragment = (CallStateDataFragmentInterface) getFragmentManager().findFragmentById(R.id.call_fragment);
+        screen_fragment = (ScreenStateFragmentInterface) getFragmentManager().findFragmentById(R.id.screen_fragment);
 
         mEditText = (EditText)findViewById(R.id.name_text_field);
         mEditText.addTextChangedListener(new TextWatcher() {
@@ -226,6 +229,7 @@ public class SensorDataDumperActivity
         air_fragment.turnOnService();
         proximity_fragment.turnOnService();
         call_fragment.turnOnService();
+        screen_fragment.turnOnService();
     }
 
     private void turnOffServices() {
@@ -245,6 +249,7 @@ public class SensorDataDumperActivity
         air_fragment.turnOffService();
         proximity_fragment.turnOffService();
         call_fragment.turnOffService();
+        screen_fragment.turnOffService();
     }
 
     private void setupAWS() {

@@ -1,6 +1,10 @@
 package com.example.hooligan.ambientlightdatadumper;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -19,6 +23,20 @@ public class DumpAmbientLightRunnable extends Thread implements SensorEventListe
     private SensorManager mSensorManager;
     private Sensor mLightSensor;
     private DataToFileWriter mDataToFileWriter;
+
+    private BroadcastReceiver mScreenOnReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    };
+
+    private BroadcastReceiver mScreenOffReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    };
 
     private static final String mLogTag = "AmbientLightRunnable";
 
