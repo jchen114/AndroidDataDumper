@@ -101,18 +101,6 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/microphone_fragment"
-            android:name="com.example.hooligan.microphonedumper.MicrophoneDumperFragment"
-            tools:layout="@layout/fragment_microphone_dumper"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            />
-
-        <fragment
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/foreground_fragment"
             android:name="com.example.hooligan.foregroundactivitydumper.ForegroundDumperFragment"
             tools:layout="@layout/fragment_foreground_dumper"

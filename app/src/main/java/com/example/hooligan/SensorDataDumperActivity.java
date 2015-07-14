@@ -96,7 +96,7 @@ public class SensorDataDumperActivity
     private TimerTask mUploadTimerTask;
     public Handler mHandler;
 
-    private static Integer timePeriod = 1000 * 60 * 2;
+    private static Integer timePeriod = 1000 * 60 * 60;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +199,7 @@ public class SensorDataDumperActivity
                         uploadToAWS();
                         mUploadTimer.cancel();
                         mUploadTimer.purge();
-
+                        mParentDir = null;
                     }
                 } else {
                     displayAngryDialog();
@@ -386,10 +386,13 @@ public class SensorDataDumperActivity
     @Override
     public void onClick(View v) {
 
-        makeDir();
         if (!didEnterName) {
             displayAngryDialog();
             return;
+        }
+
+        if (mParentDir == null) {
+            makeDir();
         }
 
         final int id = v.getId();
