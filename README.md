@@ -13,4 +13,7 @@ An application which starts services that capture/monitor
 - brightness
 - proximity
 - battery state
-and stores them locally to a file.
+- call state
+- screen state
+
+and stores them locally to a Directory and uploads to AWS
